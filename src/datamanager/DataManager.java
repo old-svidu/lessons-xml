@@ -4,11 +4,9 @@ import com.company.People;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -31,7 +29,7 @@ public class DataManager {
         Document doc = impl.createDocument(null, null, null);
 
         Element element = doc.createElement("Object");
-        element.setAttribute("type",people.getClass().getSimpleName());
+        element.setAttribute("type", people.getClass().getSimpleName());
         for (Field field : people.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             Element element1 = doc.createElement("fields");
@@ -51,7 +49,7 @@ public class DataManager {
         StreamResult consoleResult = new StreamResult(System.out);
     }
 
-    public static void serializeCollection(Collection<People> collection) throws Exception{
+    public static void serializeCollection(Collection<People> collection) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         DOMImplementation impl = builder.getDOMImplementation();
@@ -60,10 +58,10 @@ public class DataManager {
 
 
         Element rootElement = doc.createElement("Collection");
-        rootElement.setAttribute("type",People.class.getSimpleName());
+        rootElement.setAttribute("type", People.class.getSimpleName());
         for (People people : collection) {
             Element element = element = doc.createElement("Object");
-            element.setAttribute("type",People.class.getSimpleName());
+            element.setAttribute("type", People.class.getSimpleName());
             for (Field field : people.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 Element element1 = doc.createElement("fields");
@@ -77,7 +75,7 @@ public class DataManager {
         doc.appendChild(rootElement);
 
 
-        StreamResult result = new StreamResult(new File("test.xml"));
+        StreamResult result = new StreamResult(new File("testCollection.xml"));
         DOMSource source = new DOMSource(doc);
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
@@ -86,9 +84,49 @@ public class DataManager {
     }
 
 
+    public static People deserialize(String path) throws Exception {
 
-    public static People deserialize(String path) throws Exception{
-        People people = null;
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(new File(path));
+
+        Class cls = Class.forName("com.company.People");
+        People people = (People) cls.newInstance();
+
+        Field[] fields = people.getClass().getDeclaredFields();
+        Map<String,Field> fieldsMap = new HashMap<>();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            fieldsMap.put(field.getName(),field);
+        }
+
+        NodeList nodeList = doc.getElementsByTagName("Object").item(0).getChildNodes();
+        List<Node> list = new ArrayList<>();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            if (nodeList.item(i).getNodeType() !=  Node.TEXT_NODE) {
+                list.add(nodeList.item(i));
+            }
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            String id    = list.get(i).getAttributes().getNamedItem("id").getNodeValue();
+            String type  = list.get(i).getAttributes().getNamedItem("type").getNodeValue();
+            String value = list.get(i).getAttributes().getNamedItem("value").getNodeValue();
+            switch (type) {
+                case "String" :
+                    fieldsMap.get(id).set(people,value);
+                    break;
+                case "int":
+                    fieldsMap.get(id).set(people,Integer.parseInt(value));
+                    break;
+                case "double":
+                    fieldsMap.get(id).set(people,Double.parseDouble(value));
+                    break;
+                default:
+                    throw new Exception("Неизвестный тип");
+            }
+        }
+
         return people;
     }
 

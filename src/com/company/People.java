@@ -10,6 +10,7 @@ public class People implements Serializable{
     private int age;
     private double salary;
 
+    public People(){};
     public People(String name, int age, double salary) {
         this.name = name;
         this.age = age;
