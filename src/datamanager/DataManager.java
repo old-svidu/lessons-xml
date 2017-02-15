@@ -21,7 +21,7 @@ import org.w3c.dom.*;
 public class DataManager {
 
 
-    public static void serialize(Object people) throws Exception {
+    public static void serialize(Object obj) throws Exception {
         String value;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -30,13 +30,13 @@ public class DataManager {
         Document doc = impl.createDocument(null, null, null);
 
         Element element = doc.createElement("Object");
-        element.setAttribute("type", people.getClass().getSimpleName());
-        for (Field field : people.getClass().getDeclaredFields()) {
+        element.setAttribute("type", obj.getClass().getSimpleName());
+        for (Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             Element element1 = doc.createElement("fields");
             element1.setAttribute("type", field.getType().getSimpleName());
             element1.setAttribute("id", field.getName());
-            element1.setAttribute("value", value = (field.get(people) !=null ? field.get(people).toString() : "myValue"));
+            element1.setAttribute("value", value = (field.get(obj) !=null ? field.get(obj).toString() : null));
             element.appendChild(element1);
         }
         doc.appendChild(element);
@@ -50,7 +50,7 @@ public class DataManager {
         StreamResult consoleResult = new StreamResult(System.out);
     }
 
-    public static void serializeCollection(Collection<People> collection) throws Exception {
+    public static void serializeCollection(Collection<Object> collection) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         DOMImplementation impl = builder.getDOMImplementation();
@@ -58,16 +58,16 @@ public class DataManager {
         Document doc = impl.createDocument(null, null, null);
 
         Element rootElement = doc.createElement("Collection");
-        rootElement.setAttribute("type", People.class.getSimpleName());
-        for (People people : collection) {
+        rootElement.setAttribute("type", Object.class.getSimpleName());
+        for (Object obj : collection) {
             Element element = element = doc.createElement("Object");
-            element.setAttribute("type", People.class.getSimpleName());
-            for (Field field : people.getClass().getDeclaredFields()) {
+            element.setAttribute("type", Object.class.getSimpleName());
+            for (Field field : obj.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 Element element1 = doc.createElement("fields");
                 element1.setAttribute("type", field.getType().getSimpleName());
                 element1.setAttribute("id", field.getName());
-                element1.setAttribute("value", field.get(people).toString());
+                element1.setAttribute("value", field.get(obj).toString());
                 element.appendChild(element1);
             }
             rootElement.appendChild(element);
@@ -83,7 +83,7 @@ public class DataManager {
     }
 
 
-    public static People deserialize(String path) throws Exception {
+    public static People deserialize(String path) throws Exception { //передавать Class.class
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();

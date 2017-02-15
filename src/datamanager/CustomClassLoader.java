@@ -10,18 +10,17 @@ import java.util.jar.JarFile;
  * Created by root on 15.02.17.
  */
 public class CustomClassLoader extends ClassLoader {
-    private String jarFile = "/home/sa/Projects/People/animal1.jar"; //Path to the jar file
     private Hashtable classes = new Hashtable(); //used to cache already defined classes
 
     public CustomClassLoader() {
         super(CustomClassLoader.class.getClassLoader()); //calls the parent class loader's constructor
     }
 
-    public Class loadClass(String className) throws ClassNotFoundException {
-        return findClass(className);
+    public Class loadClass(String className, String jarFile) throws ClassNotFoundException {
+        return findClass(className, jarFile);
     }
 
-    public Class findClass(String className) {
+    public Class findClass(String className, String jarFile) {
         byte classByte[];
         Class result = null;
 

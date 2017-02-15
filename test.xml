@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Object type="Animal">
-<fields id="name" type="String" value="myValue"/>
-<fields id="typeAnimal" type="String" value="myValue"/>
+<fields id="name" type="String" value=""/>
+<fields id="typeAnimal" type="String" value=""/>
 </Object>
