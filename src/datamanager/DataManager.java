@@ -21,7 +21,8 @@ import org.w3c.dom.*;
 public class DataManager {
 
 
-    public static void serialize(People people) throws Exception {
+    public static void serialize(Object people) throws Exception {
+        String value;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         DOMImplementation impl = builder.getDOMImplementation();
@@ -35,7 +36,7 @@ public class DataManager {
             Element element1 = doc.createElement("fields");
             element1.setAttribute("type", field.getType().getSimpleName());
             element1.setAttribute("id", field.getName());
-            element1.setAttribute("value", field.get(people).toString());
+            element1.setAttribute("value", value = (field.get(people) !=null ? field.get(people).toString() : "myValue"));
             element.appendChild(element1);
         }
         doc.appendChild(element);
@@ -56,7 +57,6 @@ public class DataManager {
 
         Document doc = impl.createDocument(null, null, null);
 
-
         Element rootElement = doc.createElement("Collection");
         rootElement.setAttribute("type", People.class.getSimpleName());
         for (People people : collection) {
@@ -73,7 +73,6 @@ public class DataManager {
             rootElement.appendChild(element);
         }
         doc.appendChild(rootElement);
-
 
         StreamResult result = new StreamResult(new File("testCollection.xml"));
         DOMSource source = new DOMSource(doc);
